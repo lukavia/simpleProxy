@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import socketserver
 import http.server
 import urllib.request
