@@ -7,8 +7,6 @@ import urllib.parse
 import re
 import os.path
 
-PORT = 8088
-
 # Do not follow redirect just return whatever the other server returns
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -77,6 +75,9 @@ class Proxy(http.server.SimpleHTTPRequestHandler):
             # return the result for further processing
             return res
 
-httpd = socketserver.ForkingTCPServer(('', PORT), Proxy)
-print ("Now serving at", str(PORT))
-httpd.serve_forever()
+if __name__ == '__main__':
+    PORT = 8088
+
+    httpd = socketserver.ForkingTCPServer(('', PORT), Proxy)
+    print ("Now serving at", str(PORT))
+    httpd.serve_forever()
