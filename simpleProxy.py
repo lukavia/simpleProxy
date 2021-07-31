@@ -36,19 +36,23 @@ class Proxy(http.server.SimpleHTTPRequestHandler):
     def do_HEAD(self):
         self.do_request(method='HEAD')
 
+    def transform_path(self, url):
+        # Could be overwritten by implementation
+        parts = urllib.parse.urlsplit(url)
+
+        # just 2 level domain, no port
+        path = '.'.join(parts.netloc.split('.')[-2:]).split(':')[0]
+        # remove session/XXXXXX from path
+        path = path + re.sub(r'/session/[^/]*', '', parts.path)
+
+        return path
+
     def do_request(self, method='GET'):
         # remove the separator so it only leaves http....
         url=self.path.lstrip('/?')
 
         path = '.cache/'
-
-        parts = urllib.parse.urlsplit(url)
-
-        # Todo make those configurable
-        # just 2 level domain, no port
-        path = path + '.'.join(parts.netloc.split('.')[-2:]).split(':')[0]
-        # remove session/XXXXXX from path
-        path = path + re.sub(r'/session/[^/]*', '', parts.path)
+        path = path + self.transform_path(url)
 
         if os.path.isfile(path):
             self.path = path
