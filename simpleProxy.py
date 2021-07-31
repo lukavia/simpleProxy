@@ -52,6 +52,8 @@ class Proxy(http.server.SimpleHTTPRequestHandler):
 
         if os.path.isfile(path):
             self.path = path
+            # Hack to log the request as local file
+            self.requestline = path
             return self.send_head()
         else:
             # get the headers and delete the proxy Host
