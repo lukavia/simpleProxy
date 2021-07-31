@@ -18,6 +18,7 @@ opener = urllib.request.build_opener(NoRedirect)
 urllib.request.install_opener(opener)
 
 class Proxy(http.server.SimpleHTTPRequestHandler):
+    server_version = "simpleProxy"
     def do_GET(self):
         res = self.do_request(method='GET')
         if isinstance(res, http.client.HTTPResponse) and res.status == 200:
