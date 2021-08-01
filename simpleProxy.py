@@ -15,7 +15,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 opener = urllib.request.build_opener(NoRedirect)
 urllib.request.install_opener(opener)
 
-class Proxy(http.server.SimpleHTTPRequestHandler):
+class simpleProxy(http.server.SimpleHTTPRequestHandler):
     server_version = "simpleProxy"
     def do_GET(self):
         res = self.do_request(method='GET')
@@ -84,6 +84,6 @@ class Proxy(http.server.SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     PORT = 8088
 
-    httpd = socketserver.ForkingTCPServer(('', PORT), Proxy)
+    httpd = socketserver.ForkingTCPServer(('', PORT), simpleProxy)
     print ("Now serving at", str(PORT))
     httpd.serve_forever()
