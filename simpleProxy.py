@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import os
 import socketserver
 import http.server
+import tempfile
 import urllib.request
 import urllib.error
 import urllib.parse
 import re
-import os.path
 
 # Do not follow redirect just return whatever the other server returns
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -21,8 +22,11 @@ class simpleProxy(http.server.SimpleHTTPRequestHandler):
         res = self.do_request(method='GET')
         if isinstance(res, http.client.HTTPResponse) and res.status == 200:
             length = 64 * 1024
-            os.makedirs(os.path.dirname(res.cache_file), exist_ok=True)
-            f = open(res.cache_file, mode='wb')
+            dest_dir = os.path.dirname(res.cache_file)
+            os.makedirs(dest_dir, exist_ok=True)
+            # We write to a temp file and rename at the end, so we don't save a partial file in case of disconnect
+            fd, path = tempfile.mkstemp(prefix=os.path.basename(res.cache_file) + '.', dir=dest_dir, suffix='.temp~')
+            f = open(path, mode='wb')
             while True:
                 buf = res.read(length)
                 if not buf:
@@ -30,6 +34,7 @@ class simpleProxy(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(buf)
                 f.write(buf)
             f.close()
+            os.rename(path, res.cache_file)
         else:
             self.copyfile(res, self.wfile)
 
